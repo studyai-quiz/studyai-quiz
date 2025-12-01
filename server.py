@@ -6,33 +6,21 @@ from werkzeug.utils import secure_filename
 import json
 import traceback
 from openai import OpenAI
-# Note: Removed 'import io' as image compression is deleted.
 
-# -----------------------------
 # Load environment variables
-# -----------------------------
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY not found in .env file.")
 
-# Initialize OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
-# Corrected print message to reflect the model used in the API call
-print("✓ OpenAI API client configured (gpt-4o)")
 
-# -----------------------------
 # Flask setup
-# -----------------------------
 app = Flask(__name__, static_folder="public")
 CORS(app)
-# Set max file upload size to 50MB (compression notes removed)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
-# -----------------------------
 # File upload configuration
-# -----------------------------
-# UPDATED: Only PDF and TXT are allowed
 ALLOWED_EXTENSIONS = {"pdf", "txt"}
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -40,8 +28,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     """Checks if the file extension is one of the allowed types (pdf, txt)."""
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# NOTE: The compress_image and chunk_text functions were removed.
 
 def extract_text_from_file(file):
     """Extract text from uploaded TXT or PDF file."""
@@ -62,7 +48,6 @@ def extract_text_from_file(file):
     
     elif extension == "pdf":
         try:
-            # Lazy import PyPDF2 for optional dependency handling
             import PyPDF2 
             file.seek(0)
             pdf_reader = PyPDF2.PdfReader(file)
@@ -77,7 +62,6 @@ def extract_text_from_file(file):
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text + "\n"
-                    # Limit total extracted text to 50,000 characters
                     if len(text) > 50000:
                         text = text[:50000] + "\n[Content truncated due to size]"
                         break
@@ -96,13 +80,10 @@ def extract_text_from_file(file):
             print(f"PDF processing error: {e}")
             return None
     
-    # All other extensions are disallowed
     else:
         return None
 
-# -----------------------------
 # OpenAI API call using SDK
-# -----------------------------
 def call_openai_api(prompt, max_tokens=2000):
     """Call OpenAI API via the Python SDK"""
     try:
@@ -112,7 +93,6 @@ def call_openai_api(prompt, max_tokens=2000):
         
         print("➡ Sending prompt to OpenAI API...")
         response = client.chat.completions.create(
-            # Using gpt-4o-mini as specified in your call
             model="gpt-4o-mini", 
             messages=[
                 {"role": "system", "content": "You are an educational AI assistant. Always respond with valid JSON when requested."},
@@ -131,9 +111,7 @@ def call_openai_api(prompt, max_tokens=2000):
         traceback.print_exc()
         return None
 
-# -----------------------------
 # Routes
-# -----------------------------
 @app.route("/")
 def index():
     return send_from_directory("public", "index.html")
@@ -144,7 +122,6 @@ def serve_static(path):
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    # UPDATED: Removed mention of compression
     return jsonify({"error": "File size exceeds 50MB limit."}), 413
 
 @app.route("/api/process-files", methods=["POST"])
@@ -164,10 +141,8 @@ def process_files():
         for file in files:
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                # Removed extension check, as allowed_file already ensures it's PDF or TXT
                 
                 try:
-                    # Removed all image compression logic.
                     
                     text = extract_text_from_file(file)
                     if text:
@@ -178,7 +153,6 @@ def process_files():
                 except Exception as e:
                     errors.append(f"{filename}: {str(e)}")
             else:
-                 # Handle files that were not allowed (e.g., a .docx file)
                  if file and file.filename:
                     errors.append(f"{file.filename}: File type not supported. Only PDF and TXT are supported.")
 
@@ -189,10 +163,7 @@ def process_files():
                 error_msg += " " + " ".join(errors)
             return jsonify({"error": error_msg}), 400
 
-        # -----------------------------
         # Generate explanation
-        # -----------------------------
-        # Limit text size for API
         if len(combined_text) > 8000:
             combined_text = combined_text[:8000] + "...\n[Content truncated for processing]"
         
@@ -203,7 +174,7 @@ Study Material:
 
 Please provide:
 1. A clear topic/title for this material
-2. A detailed explanation broken into 3-5 paragraphs that summarizes the key concepts, main ideas, and important information in an educational and easy-to-understand manner.
+2. A detailed explanation broken into 3-5 paragraphs in simple language that summarizes the key concepts, main ideas, and important information in an educational and easy-to-understand manner.
 
 Format your response as JSON with this structure:
 {{
@@ -224,7 +195,6 @@ Only return the JSON, no additional text."""
         if not explanation_text:
             return jsonify({"error": "Failed to generate explanation. Please try again."}), 500
         
-        # Extract JSON from response
         explanation_text = explanation_text.strip()
         if explanation_text.startswith('```json'):
             explanation_text = explanation_text.replace('```json', '').replace('```', '').strip()
@@ -236,16 +206,13 @@ Only return the JSON, no additional text."""
         except json.JSONDecodeError as e:
             print(f"JSON parsing error: {e}")
             print(f"Raw response: {explanation_text[:500]}")
-            # Fallback: create structure from text
             explanation_data = {
                 "topic": "Study Material Analysis",
                 "content": explanation_text.split('\n\n')[:5] if explanation_text else ["Unable to generate explanation."]
             }
 
-        # -----------------------------
-        # Generate quiz questions (3-5 questions)
-        # -----------------------------
-        quiz_prompt = f"""Based on this study material, create 3-5 multiple-choice questions that test understanding of the most important concepts.
+        # Generate quiz questions
+        quiz_prompt = f"""Based on this study material, create 5-10 multiple-choice questions that test understanding of the most important concepts.
 
 Study Material:
 {combined_text}
@@ -281,7 +248,6 @@ Only return the JSON array, no additional text."""
         if not quiz_text:
             return jsonify({"error": "Failed to generate quiz. Please try again."}), 500
         
-        # Extract JSON from response
         quiz_text = quiz_text.strip()
         if quiz_text.startswith('```json'):
             quiz_text = quiz_text.replace('```json', '').replace('```', '').strip()
@@ -290,11 +256,9 @@ Only return the JSON array, no additional text."""
         
         try:
             quiz_data = json.loads(quiz_text)
-            # Ensure it's a list
             if not isinstance(quiz_data, list):
                 quiz_data = [quiz_data]
             
-            # Validate quiz data structure
             valid_questions = []
             for i, q in enumerate(quiz_data):
                 if isinstance(q, dict) and 'question' in q and 'options' in q and 'correctAnswer' in q:
@@ -311,7 +275,6 @@ Only return the JSON array, no additional text."""
         except (json.JSONDecodeError, ValueError) as e:
             print(f"Quiz generation/parsing error: {e}")
             print(f"Raw response: {quiz_text[:500]}")
-            # Fallback quiz
             quiz_data = [
                 {
                     "question": "What is the main topic of the study material?",
@@ -329,10 +292,8 @@ Only return the JSON array, no additional text."""
                 }
             ]
 
-        # Ensure explanation_data is in the right format for frontend
         explanation_for_storage = [explanation_data] if isinstance(explanation_data, dict) else explanation_data
-        
-        # Debug: Print what we're sending
+
         print(f"Returning explanation (type: {type(explanation_for_storage)}, length: {len(explanation_for_storage) if isinstance(explanation_for_storage, list) else 'N/A'})")
         print(f"Returning quiz (type: {type(quiz_data)}, length: {len(quiz_data)})")
         
@@ -348,9 +309,7 @@ Only return the JSON array, no additional text."""
         print(traceback.format_exc())
         return jsonify({"error": f"Processing error: {str(e)}"}), 500
 
-# -----------------------------
 # Run server
-# -----------------------------
 if __name__ == "__main__":
-    print("Starting Server...")
+    print("Starting server")
     app.run(host="0.0.0.0", port=5000, debug=True)
