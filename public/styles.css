@@ -1,21 +1,20 @@
-/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* CSS Variables - General Color Theme */
 :root {
-  --theme-primary: #5865F2; /* Formerly --discord-primary */
+  --theme-primary: #5865F2; 
   --primary-hover: #4752C4;
-  --theme-dark: #23272A; /* Formerly --discord-dark */
-  --theme-darker: #1e2124; /* Formerly --discord-darker */
-  --theme-sidebar: #2C2F33; /* Formerly --discord-sidebar */
-  --theme-content: #36393F; /* Formerly --discord-content */
-  --theme-text-primary: #FFFFFF; /* Formerly --discord-text-primary */
-  --theme-text-secondary: #DCDDDE; /* Formerly --discord-text-secondary */
-  --theme-text-muted: #72767D; /* Formerly --discord-text-muted */
-  --theme-success: #57F287; /* Formerly --discord-success */
-  --theme-danger: #ED4245; /* Formerly --discord-danger */
-  --theme-warning: #FEE75C; /* Formerly --discord-warning */
-  --theme-border: rgba(255, 255, 255, 0.06); /* Formerly --discord-border */
+  --theme-dark: #23272A; 
+  --theme-darker: #1e2124; 
+  --theme-sidebar: #2C2F33; 
+  --theme-content: #36393F; 
+  --theme-text-primary: #FFFFFF; 
+  --theme-text-secondary: #DCDDDE; 
+  --theme-text-muted: #72767D; 
+  --theme-success: #57F287; 
+  --theme-danger: #ED4245; 
+  --theme-warning: #FEE75C; 
+  --theme-border: rgba(255, 255, 255, 0.06); 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
@@ -77,6 +76,10 @@ nav h1 {
   font-weight: 600;
   color: var(--theme-text-primary);
   margin: 0;
+  background: linear-gradient(135deg, var(--theme-text-primary) 0%, var(--theme-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 nav ul {
@@ -371,7 +374,7 @@ section {
   border: 2px dashed var(--theme-primary);
   border-radius: var(--radius-md);
   text-align: center;
-  padding: 4rem 3rem; /* DESKTOP PADDING */
+  padding: 4rem 3rem;
   max-width: 700px;
   width: 100%;
   margin: 0 auto;
@@ -521,7 +524,7 @@ button:focus, .btn:focus {
 
 .question li.selected {
   border-color: var(--theme-primary);
-  background: rgba(88, 101, 242, 0.15); /* Light primary background */
+  background: rgba(88, 101, 242, 0.15);
   color: var(--theme-text-primary);
 }
 
@@ -560,15 +563,15 @@ button:disabled {
   line-height: 1.7;
 }
 
-/* Style for the Underline Topic Title (Requested by user) */
+
 .explanation-topic-title {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--theme-text-primary);
-  margin: 0 0 2.5rem 0; /* DESKTOP SPACING */
-  padding-bottom: 0.5rem; /* Space for the underline */
-  border-bottom: 3px solid var(--theme-primary); /* The blue underline */
-  display: inline-block; /* Essential to make border-bottom only span the text width */
+  margin: 0 0 2.5rem 0; 
+  padding-bottom: 0.5rem; 
+  border-bottom: 3px solid var(--theme-primary);
+  display: inline-block;
   line-height: 1.2;
   transition: all 0.3s ease;
 }
@@ -651,7 +654,6 @@ button:disabled {
   }
 }
 
-/* Modern Notification Styles (Desktop Default) */
 .notification {
   position: fixed;
   top: 90px;
@@ -691,7 +693,6 @@ button:disabled {
 }
 
 
-/* Responsive Design — Improved Mobile Layout */
 @media (max-width: 768px) {
   /* Navbar */
   nav {
@@ -738,12 +739,10 @@ button:disabled {
     font-size: 8rem;
   }
 
-  /* General Content */
   .content {
     padding: 1.5rem;
   }
 
-  /* FIX 1: Reduce vertical spacing on sections */
   section {
     padding: 3rem 0;
   }
@@ -772,19 +771,17 @@ button:disabled {
     max-width: 100%;
   }
 
-  /* FIX 2: Reduce padding on drop zone */
   .drop-zone {
     padding: 2.5rem 1.5rem;
   }
 
-  /* Explanation + Quiz Containers */
   #quiz-container, #explanation-container {
     padding: 1.5rem;
     border-radius: var(--radius-sm);
   }
   
   .question {
-    padding: 1rem; /* Slightly reduced padding */
+    padding: 1rem; 
     margin-bottom: 1.5rem;
   }
   
@@ -793,30 +790,27 @@ button:disabled {
   }
   
   .question li {
-    padding: 0.75rem 1rem; /* Reduced option padding */
+    padding: 0.75rem 1rem;
     font-size: 0.95rem;
   }
 
-  /* FIX 3: Adjust the new explanation title spacing and size */
   .explanation-topic-title {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
   }
   
-  /* FIX 4: Ensure quiz buttons stack nicely */
   #quizContent > div:last-child {
       display: flex;
-      flex-direction: column; /* Stack buttons vertically */
-      gap: 0.75rem !important; /* Adjust gap */
+      flex-direction: column;
+      gap: 0.75rem !important;
   }
   
-  /* FIX 5: Adjust notification styling and position for small screens */
   .notification {
-    top: 70px; /* Adjust down from the now-stacked mobile navbar */
+    top: 70px;
     left: 10px;
     right: 10px;
-    max-width: calc(100% - 20px); /* Fill available width */
-    padding: 0.8rem 1rem; /* Slightly reduced padding */
+    max-width: calc(100% - 20px);
+    padding: 0.8rem 1rem;
     font-size: 0.95rem;
   }
 
@@ -864,7 +858,6 @@ button:disabled {
   }
 }
 
-/* No Data Message Styles */
 #noDataMessage h3, #noQuizMessage h3 {
   color: var(--theme-text-primary);
 }
