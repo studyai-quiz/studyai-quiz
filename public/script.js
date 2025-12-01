@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
@@ -43,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
 let activeNotification = null;
 
 function showNotification(message, type = "info") {
-  // Remove existing notification instantly
   if (activeNotification) {
     activeNotification.remove();
     activeNotification = null;
@@ -82,7 +80,6 @@ function showNotification(message, type = "info") {
       const formData = new FormData();
       Array.from(files).forEach(file => formData.append('files', file));
 
-      // Show loading state
       if (dropZone) {
         dropZone.style.opacity = '0.6';
         dropZone.style.pointerEvents = 'none';
@@ -121,7 +118,6 @@ function showNotification(message, type = "info") {
     } catch (err) {
       showNotification(`Error: ${err.message}`, "error");
       
-      // Restore UI
       if (dropZone) {
         dropZone.style.opacity = '1';
         dropZone.style.pointerEvents = 'auto';
@@ -141,7 +137,7 @@ function showNotification(message, type = "info") {
     }
   }
 
-  // ---------- Explanation Page ----------
+  // Explanation Page
   const explanationResult = document.getElementById("explanationResult");
   const loadingText = document.getElementById("loadingText");
   const noDataMessage = document.getElementById("noDataMessage");
@@ -155,17 +151,14 @@ function showNotification(message, type = "info") {
     } else {
       const data = JSON.parse(explanationData);
       
-      // FIX: Render immediately if data exists
       loadingText.classList.add("hidden");
       if (noDataMessage) noDataMessage.classList.add("hidden");
       
-      // Handle both array and single object formats
       const sections = Array.isArray(data) ? data : [data];
       explanationResult.innerHTML = sections.map(section => {
         const topic = section.topic || "Study Material";
         const content = section.content || (Array.isArray(section) ? section : [section]);
         
-        // FIX: Changed to use the new 'explanation-topic-title' class for a blue underline, removing "Topic: "
         return `
           <h3 class="explanation-topic-title">${topic}</h3>
           ${content.map(p => `<p>${p}</p>`).join('')}
@@ -179,7 +172,7 @@ function showNotification(message, type = "info") {
     }
   }
 
-  // ---------- Quiz Page ----------
+  // Quiz Page
   const quizContent = document.getElementById("quizContent");
   const loadingQuiz = document.getElementById("loadingQuiz");
   const noQuizMessage = document.getElementById("noQuizMessage");
@@ -195,7 +188,6 @@ function showNotification(message, type = "info") {
         const questions = JSON.parse(quizData);
         if (!Array.isArray(questions) || questions.length === 0) throw new Error("Quiz data is empty or invalid format.");
         
-        // FIX: Render immediately if data exists
         loadingQuiz.classList.add("hidden");
         if (noQuizMessage) noQuizMessage.classList.add("hidden");
         
@@ -235,18 +227,14 @@ function showNotification(message, type = "info") {
     const questions = document.querySelectorAll(".question");
     const submitBtn = document.getElementById("submitQuiz");
 
-    // Make sure quizData is an array
     const questionsArray = Array.isArray(quizData) ? quizData : [quizData];
 
-    // Set up click handlers for each question
     questions.forEach(qElem => {
       const options = qElem.querySelectorAll("li");
       options.forEach(opt => {
         opt.addEventListener('click', function() {
           if (submitBtn.disabled) return;
-          // Remove selected from all other options in this question
           options.forEach(o => o.classList.remove("selected"));
-          // Add selected to the clicked option
           this.classList.add("selected");
         });
       });
